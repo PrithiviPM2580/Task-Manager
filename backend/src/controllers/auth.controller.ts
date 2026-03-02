@@ -4,6 +4,7 @@ import {
   loginUserService,
   getUserProfileService,
   updateUserProfileService,
+  logoutUserService,
 } from "@/services/auth.service.js";
 import logger from "@/lib/logger.lib.js";
 import { successResponse } from "@/utils/success-response.js";
@@ -43,7 +44,18 @@ export const loginUserController = async (req: Request, res: Response) => {
   });
 };
 
-export const logoutUserController = (req: Request, res: Response) => {};
+export const logoutUserController = async (req: Request, res: Response) => {
+  await logoutUserService(req.user!.userId);
+
+  cookie.clear(res, "token");
+
+  logger.info("User logged out successfully", {
+    label: "Auth_Controller",
+    userId: req.user!.userId,
+  });
+
+  successResponse(res, 200, "User logged out successfully");
+};
 
 export const getUserProfileController = async (req: Request, res: Response) => {
   const { user } = await getUserProfileService(req.user!.userId);
