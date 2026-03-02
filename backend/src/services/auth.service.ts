@@ -6,6 +6,7 @@ import {
   findUserByEmail,
   createUser,
   findUser,
+  findUserById,
 } from "@/repositories/auth.repository.js";
 import logger from "@/lib/logger.lib.js";
 import APIError from "@/lib/api-error.lib.js";
@@ -83,4 +84,18 @@ export const loginUserService = async (userData: LoginUserInput) => {
     user,
     token,
   };
+};
+
+export const getUserProfileService = async (userId: string) => {
+  const user = await findUserById(userId);
+
+  if (!user) {
+    logger.error("Get user profile failed: User not found", {
+      label: "Auth_Service",
+      userId,
+    });
+    throw new APIError(404, "Get user profile failed: User not found");
+  }
+
+  return { user };
 };

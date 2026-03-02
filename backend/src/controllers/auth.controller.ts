@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import {
   registerUserService,
   loginUserService,
+  getUserProfileService,
 } from "@/services/auth.service.js";
 import logger from "@/lib/logger.lib.js";
 import { successResponse } from "@/utils/success-response.js";
@@ -43,6 +44,18 @@ export const loginUserController = async (req: Request, res: Response) => {
 
 export const logoutUserController = (req: Request, res: Response) => {};
 
-export const getUserProfileController = (req: Request, res: Response) => {};
+export const getUserProfileController = async (req: Request, res: Response) => {
+  const { user } = await getUserProfileService(req.user!.userId);
+
+  logger.info("User profile retrieved successfully", {
+    label: "Auth_Controller",
+    userId: user._id,
+    email: user.email,
+  });
+
+  successResponse(res, 200, "User profile retrieved successfully", {
+    user,
+  });
+};
 
 export const updateUserProfileController = (req: Request, res: Response) => {};

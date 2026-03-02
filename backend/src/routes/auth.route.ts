@@ -1,8 +1,10 @@
 import {
   registerUserController,
   loginUserController,
+  getUserProfileController,
 } from "@/controllers/auth.controller.js";
 import asyncHandler from "@/middlewares/async-handler.middleware.js";
+import { authenticateMiddleware } from "@/middlewares/authenticate.middleware.js";
 import { authLimitter } from "@/middlewares/rate-limiter.middleware.js";
 import { validateRequest } from "@/middlewares/validate-request.middleware.js";
 import {
@@ -43,7 +45,9 @@ authRouter.route("/logout").post((req, res) => {});
 // @route   POST /api/auth/profile
 // @desc    Get user profile
 // @access  Private (Requires authentication)
-authRouter.route("/profile").get((req, res) => {});
+authRouter
+  .route("/profile")
+  .get(authenticateMiddleware, asyncHandler(getUserProfileController));
 
 // @route   POST /api/auth/profile/update
 // @desc    Update user profile
