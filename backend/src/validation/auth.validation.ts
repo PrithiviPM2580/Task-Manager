@@ -1,4 +1,4 @@
-import { email, z } from "zod";
+import { z } from "zod";
 
 export const registerUserSchema = z.object({
   name: z.string().min(6, "Name must be at least 6 characters long"),

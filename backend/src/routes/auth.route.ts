@@ -2,14 +2,20 @@ import {
   registerUserController,
   loginUserController,
   getUserProfileController,
+  updateUserProfileController,
+  logoutUserController,
 } from "@/controllers/auth.controller.js";
 import asyncHandler from "@/middlewares/async-handler.middleware.js";
 import { authenticateMiddleware } from "@/middlewares/authenticate.middleware.js";
-import { authLimitter } from "@/middlewares/rate-limiter.middleware.js";
+import {
+  apiLimitter,
+  authLimitter,
+} from "@/middlewares/rate-limiter.middleware.js";
 import { validateRequest } from "@/middlewares/validate-request.middleware.js";
 import {
   loginUserSchema,
   registerUserSchema,
+  updateProfileSchema,
 } from "@/validation/auth.validation.js";
 import { Router } from "express";
 
@@ -40,7 +46,13 @@ authRouter
 // @route   POST /api/auth/logout
 // @desc    Logout user and invalidate token
 // @access  Private
-authRouter.route("/logout").post((req, res) => {});
+authRouter
+  .route("/logout")
+  .post(
+    authLimitter,
+    authenticateMiddleware,
+    asyncHandler(logoutUserController),
+  );
 
 // @route   POST /api/auth/profile
 // @desc    Get user profile
@@ -56,6 +68,13 @@ authRouter
 // @route   POST /api/auth/profile/update
 // @desc    Update user profile
 // @access  Private (Requires authentication)
-authRouter.route("/profile").put((req, res) => {});
+authRouter
+  .route("/profile")
+  .put(
+    apiLimitter,
+    authenticateMiddleware,
+    validateRequest({ body: updateProfileSchema }),
+    asyncHandler(updateUserProfileController),
+  );
 
 export default authRouter;
