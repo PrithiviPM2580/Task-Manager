@@ -8,6 +8,7 @@ import {
   createUser,
   findUser,
   findUserById,
+  findUserDocumentById,
   findUserByIdWithPassword,
 } from "@/repositories/auth.repository.js";
 import logger from "@/lib/logger.lib.js";
@@ -86,6 +87,23 @@ export const loginUserService = async (userData: LoginUserInput) => {
     user,
     token,
   };
+};
+
+export const logoutUserService = async (userId: string) => {
+  const user = await findUserDocumentById(userId);
+
+  if (!user) {
+    logger.error("Logout failed: User not found", {
+      label: "Auth_Service",
+      userId,
+    });
+    throw new APIError(404, "Logout failed: User not found");
+  }
+
+  user.tokenVersion += 1;
+  await user.save();
+
+  return;
 };
 
 export const getUserProfileService = async (userId: string) => {
