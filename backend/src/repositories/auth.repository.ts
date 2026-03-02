@@ -10,6 +10,10 @@ export const findUserById = async (id: string) => {
   return await User.findById(id).lean();
 };
 
+export const findUserByIdWithPassword = async (id: string) => {
+  return await User.findById(id).select("+password");
+};
+
 export const findUser = async (email: string) => {
   return await User.findOne({
     email,

@@ -47,7 +47,11 @@ authRouter.route("/logout").post((req, res) => {});
 // @access  Private (Requires authentication)
 authRouter
   .route("/profile")
-  .get(authenticateMiddleware, asyncHandler(getUserProfileController));
+  .get(
+    authLimitter,
+    authenticateMiddleware,
+    asyncHandler(getUserProfileController),
+  );
 
 // @route   POST /api/auth/profile/update
 // @desc    Update user profile

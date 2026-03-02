@@ -3,6 +3,7 @@ import {
   registerUserService,
   loginUserService,
   getUserProfileService,
+  updateUserProfileService,
 } from "@/services/auth.service.js";
 import logger from "@/lib/logger.lib.js";
 import { successResponse } from "@/utils/success-response.js";
@@ -58,4 +59,16 @@ export const getUserProfileController = async (req: Request, res: Response) => {
   });
 };
 
-export const updateUserProfileController = (req: Request, res: Response) => {};
+export const updateUserProfileController = async (
+  req: Request,
+  res: Response,
+) => {
+  await updateUserProfileService(req.user!.userId, req.body);
+
+  logger.info("User profile updated successfully", {
+    label: "Auth_Controller",
+    userId: req.user!.userId,
+  });
+
+  successResponse(res, 200, "User profile updated successfully");
+};
