@@ -11,7 +11,7 @@ declare global {
 
   type Errorresponse = string | ErrorType;
 
-  type Roles = "admin" | "user";
+  type Roles = "admin" | "member";
 
   interface JWTPayload {
     userId: string;
