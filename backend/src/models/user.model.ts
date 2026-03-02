@@ -7,6 +7,7 @@ export interface IUser extends Document {
   password: string;
   role: "admin" | "member";
   profileImageUrl?: string;
+  tokenVersion: number;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -39,6 +40,10 @@ const userSchema = new Schema<IUser>(
     profileImageUrl: {
       type: String,
       default: "",
+    },
+    tokenVersion: {
+      type: Number,
+      default: 0,
     },
   },
   {
