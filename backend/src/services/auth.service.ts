@@ -1,12 +1,14 @@
 import type {
   LoginUserInput,
   RegisterUserInput,
+  UpdateProfileInput,
 } from "@/validation/auth.validation.js";
 import {
   findUserByEmail,
   createUser,
   findUser,
   findUserById,
+  findUserByIdWithPassword,
 } from "@/repositories/auth.repository.js";
 import logger from "@/lib/logger.lib.js";
 import APIError from "@/lib/api-error.lib.js";
@@ -98,4 +100,45 @@ export const getUserProfileService = async (userId: string) => {
   }
 
   return { user };
+};
+
+export const updateUserProfileService = async (
+  userId: string,
+  updateData: UpdateProfileInput,
+) => {
+  const { name, profileImageUrl, password, email } = updateData;
+
+  const user = await findUserByIdWithPassword(userId);
+
+  if (!user) {
+    logger.error("Update user profile failed: User not found", {
+      label: "Auth_Service",
+      userId,
+    });
+    throw new APIError(404, "Update user profile failed: User not found");
+  }
+
+  if (email && email !== user.email) {
+    const existingUser = await findUserByEmail(email);
+    if (existingUser) {
+      logger.error("Update user profile failed: Email already in use", {
+        label: "Auth_Service",
+        userId,
+        email,
+      });
+      throw new APIError(
+        400,
+        "Update user profile failed: Email already in use",
+      );
+    }
+    user.email = email;
+  }
+
+  if (name) user.name = name;
+  if (profileImageUrl) user.profileImageUrl = profileImageUrl;
+  if (password) user.password = password;
+
+  await user.save();
+
+  return;
 };
