@@ -1,4 +1,5 @@
 import express, { type Express } from "express";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import corsOptions from "./lib/cors.lib.js";
@@ -14,6 +15,7 @@ app.use(helmet());
 app.use(morganOptions);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(cors(corsOptions));
 
 // Routes
