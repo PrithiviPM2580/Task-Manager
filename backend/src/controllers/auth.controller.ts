@@ -1,10 +1,16 @@
 import type { Request, Response } from "express";
-import { registerUserService } from "@/services/auth.service.js";
+import {
+  registerUserService,
+  loginUserService,
+} from "@/services/auth.service.js";
 import logger from "@/lib/logger.lib.js";
 import { successResponse } from "@/utils/success-response.js";
+import cookie from "@/lib/cookie.lib.js";
 
 export const registerUserController = async (req: Request, res: Response) => {
   const { user, token } = await registerUserService(req.body);
+
+  cookie.set(res, "token", token);
 
   logger.info("User registered successfully", {
     label: "Auth_Controller",
@@ -18,7 +24,22 @@ export const registerUserController = async (req: Request, res: Response) => {
   });
 };
 
-export const loginUserController = (req: Request, res: Response) => {};
+export const loginUserController = async (req: Request, res: Response) => {
+  const { user, token } = await loginUserService(req.body);
+
+  cookie.set(res, "token", token);
+
+  logger.info("User logged in successfully", {
+    label: "Auth_Controller",
+    userId: user._id,
+    email: user.email,
+  });
+
+  successResponse(res, 200, "User logged in successfully", {
+    user,
+    token,
+  });
+};
 
 export const logoutUserController = (req: Request, res: Response) => {};
 
