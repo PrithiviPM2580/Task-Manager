@@ -6,6 +6,16 @@ export const findUserByEmail = async (email: string) => {
   }).lean();
 };
 
+export const findUserById = async (id: string) => {
+  return await User.findById(id).lean();
+};
+
+export const findUser = async (email: string) => {
+  return await User.findOne({
+    email,
+  });
+};
+
 export const createUser = async (userData: {
   name: string;
   email: string;
