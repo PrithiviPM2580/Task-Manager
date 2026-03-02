@@ -13,7 +13,7 @@ router.route("/health").get((_req, res) => {
 
 router.use("/api/auth", authRouter);
 
-router.use("*", (_req, res) => {
+router.use("/{*splat}", (_req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
