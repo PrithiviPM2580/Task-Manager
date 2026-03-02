@@ -4,6 +4,7 @@ import helmet from "helmet";
 import corsOptions from "./lib/cors.lib.js";
 import morganOptions from "./lib/morgan.lib.js";
 import globalErrorHandler from "./middlewares/global-error-handler.middleware.js";
+import routes from "@/routes/index.route.js";
 
 // Create Express app
 const app: Express = express();
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 
 // Routes
+app.use(routes);
 
 //Error handling middleware
 app.use(globalErrorHandler);

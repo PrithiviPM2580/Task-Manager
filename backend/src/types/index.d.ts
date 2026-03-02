@@ -1,3 +1,5 @@
+import { type SignOptions } from "jsonwebtoken";
+
 declare global {
   type ErrorDetails = {
     field?: string;
@@ -13,11 +15,12 @@ declare global {
 
   type Roles = "admin" | "member";
 
-  interface JWTPayload {
+  type JWTSignOptions = Pick<SignOptions, "expiresIn">;
+
+  interface Payload {
     userId: string;
-    purpose: "email-verification" | "reset-password" | "access" | "refresh";
-    iat?: number;
-    exp?: number;
+    email: string;
+    tokenVersion: number;
   }
 }
 
