@@ -1,8 +1,14 @@
-import { registerUserController } from "@/controllers/auth.controller.js";
+import {
+  registerUserController,
+  loginUserController,
+} from "@/controllers/auth.controller.js";
 import asyncHandler from "@/middlewares/async-handler.middleware.js";
 import { authLimitter } from "@/middlewares/rate-limiter.middleware.js";
 import { validateRequest } from "@/middlewares/validate-request.middleware.js";
-import { registerUserSchema } from "@/validation/auth.validation.js";
+import {
+  loginUserSchema,
+  registerUserSchema,
+} from "@/validation/auth.validation.js";
 import { Router } from "express";
 
 const authRouter: Router = Router();
@@ -21,7 +27,13 @@ authRouter
 // @route   POST /api/auth/login
 // @desc    Authenticate user and return token
 // @access  Public
-authRouter.route("/login").post((req, res) => {});
+authRouter
+  .route("/login")
+  .post(
+    authLimitter,
+    validateRequest({ body: loginUserSchema }),
+    asyncHandler(loginUserController),
+  );
 
 // @route   POST /api/auth/logout
 // @desc    Logout user and invalidate token
