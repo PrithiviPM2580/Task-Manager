@@ -26,5 +26,11 @@ export const getTasksQuerySchema = z.object({
   status: z.enum(["Pending", "In Progress", "Completed"]).optional(),
 });
 
+export const getTaskByIdSchema = z.object({
+  id: z.string().refine(Types.ObjectId.isValid, {
+    message: "Invalid task ID",
+  }),
+});
+
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type GetTasksQueryInput = z.infer<typeof getTasksQuerySchema>;
