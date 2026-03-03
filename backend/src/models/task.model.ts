@@ -1,17 +1,17 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-interface ITodo extends Document {
+export interface ITodo extends Document {
   text: string;
   completed: boolean;
 }
 
-interface ITask extends Document {
+export interface ITask extends Document {
   title: string;
   description: string;
   priority: "Low" | "Medium" | "High";
   status: "Pending" | "In Progress" | "Completed";
   dueDate: Date;
-  assignedTo: mongoose.Types.ObjectId;
+  assignedTo: mongoose.Types.ObjectId[];
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -42,11 +42,13 @@ const taskSchema = new Schema<ITask>(
       default: "Pending",
     },
     dueDate: Date,
-    assignedTo: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    assignedTo: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+    ],
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
