@@ -19,6 +19,7 @@ declare global {
 
   interface Payload {
     userId: string;
+    role: Roles;
     email: string;
     tokenVersion: number;
   }
