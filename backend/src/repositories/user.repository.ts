@@ -11,6 +11,10 @@ export const findUserById = async (id: string) => {
   return await User.findById(id).select("-password -tokenVersion").lean();
 };
 
+export const findUserDocumentById = async (id: string) => {
+  return await User.findById(id);
+};
+
 export const getDocumentTasksCount = async (userId: string) => {
   const [pendingTaskCount, inProgressTaskCount, completedTaskCount] =
     await Promise.all([
