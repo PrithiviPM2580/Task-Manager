@@ -7,6 +7,10 @@ export const findAllUsersByRole = async () => {
     .lean();
 };
 
+export const findUserById = async (id: string) => {
+  return await User.findById(id).select("-password -tokenVersion").lean();
+};
+
 export const getDocumentTasksCount = async (userId: string) => {
   const [pendingTaskCount, inProgressTaskCount, completedTaskCount] =
     await Promise.all([
