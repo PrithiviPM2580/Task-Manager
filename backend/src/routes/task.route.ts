@@ -10,10 +10,12 @@ import {
   createTaskSchema,
   getTaskByIdSchema,
   getTasksQuerySchema,
+  updateTaskSchema,
 } from "@/validation/task.validation.js";
 import {
   createTaskController,
   getTasksController,
+  updateTaskController,
 } from "@/controllers/task.controller.js";
 
 const taskRouter: Router = Router();
@@ -68,7 +70,14 @@ taskRouter
 // @route   PUT /api/tasks/:id
 // @desc    Update task by ID for the authenticated user
 // @access  Private (Requires authentication)
-taskRouter.route("/:id").put((_req, _res) => {});
+taskRouter
+  .route("/:id")
+  .put(
+    apiLimitter,
+    authenticateMiddleware,
+    validateRequest({ params: updateTaskSchema }),
+    asyncHandler(updateTaskController),
+  );
 
 // @route   DELETE /api/tasks/:id
 // @desc    Delete task by ID for the authenticated user

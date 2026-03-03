@@ -1,6 +1,7 @@
 import type {
   CreateTaskInput,
   GetTasksQueryInput,
+  UpdateTaskInput,
 } from "@/validation/task.validation.js";
 import {
   createTask,
@@ -8,9 +9,11 @@ import {
   allTaskCountDocument,
   statusTaskCountDocument,
   findTaskById,
+  findTaskDocumentById,
 } from "@/repositories/task.repository.js";
 import logger from "@/lib/logger.lib.js";
 import APIError from "@/lib/api-error.lib.js";
+import { Types } from "mongoose";
 
 export const createTaskService = async (
   taskData: CreateTaskInput,
@@ -90,4 +93,45 @@ export const getTaskByIdService = async (id: string) => {
   }
 
   return { task };
+};
+
+export const updateTaskService = async (
+  id: string,
+  updateData: UpdateTaskInput,
+) => {
+  const {
+    title,
+    description,
+    assignedTo,
+    priority,
+    status,
+    dueDate,
+    attachments,
+    todoCheckList,
+  } = updateData;
+
+  const task = await findTaskDocumentById(id);
+
+  if (!task) {
+    logger.error("Task not found for update", {
+      label: "Task_Service",
+      taskId: id,
+    });
+    throw new APIError(404, "Task not found for update");
+  }
+
+  if (title !== undefined) task.title = title;
+  if (description !== undefined) task.description = description;
+  if (assignedTo !== undefined) {
+    task.assignedTo = assignedTo.map((id) => new Types.ObjectId(id));
+  }
+  if (priority !== undefined) task.priority = priority;
+  if (status !== undefined) task.status = status;
+  if (dueDate !== undefined) task.dueDate = dueDate;
+  if (attachments !== undefined) task.attachments = attachments;
+  if (todoCheckList !== undefined) task.todoCheckList = todoCheckList;
+
+  await task.save();
+
+  return;
 };

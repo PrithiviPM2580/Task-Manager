@@ -4,6 +4,7 @@ import {
   createTaskService,
   getTasksService,
   getTaskByIdService,
+  updateTaskService,
 } from "@/services/task.service.js";
 import type { GetTasksQueryInput } from "@/validation/task.validation.js";
 import { successResponse } from "@/utils/success-response.util.js";
@@ -51,4 +52,17 @@ export const getTaskByIdController = async (req: Request, res: Response) => {
   successResponse(res, 200, "Task fetched successfully", {
     task,
   });
+};
+
+export const updateTaskController = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+
+  await updateTaskService(id, req.body);
+
+  logger.info("Task updated successfully", {
+    label: "Task_Controller",
+    taskId: id,
+  });
+
+  successResponse(res, 200, "Task updated successfully");
 };

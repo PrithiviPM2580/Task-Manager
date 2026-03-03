@@ -1,11 +1,11 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-export interface ITodo extends Document {
+export interface ITodo {
   text: string;
   completed: boolean;
 }
 
-export interface ITask extends Document {
+export interface ITask {
   title: string;
   description: string;
   priority: "Low" | "Medium" | "High";
