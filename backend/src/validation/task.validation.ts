@@ -22,4 +22,9 @@ export const createTaskSchema = z.object({
   ),
 });
 
+export const getTasksQuerySchema = z.object({
+  status: z.enum(["Pending", "In Progress", "Completed"]).optional(),
+});
+
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
+export type GetTasksQueryInput = z.infer<typeof getTasksQuerySchema>;
