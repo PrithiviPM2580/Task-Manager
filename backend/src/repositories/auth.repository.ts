@@ -15,7 +15,7 @@ export const findUserDocumentById = async (id: string) => {
 };
 
 export const findUserByIdWithPassword = async (id: string) => {
-  return await User.findById(id).select("+password");
+  return await User.findById(id).select("+password +tokenVersion");
 };
 
 export const findUser = async (email: string) => {

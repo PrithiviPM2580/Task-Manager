@@ -49,6 +49,7 @@ const userSchema = new Schema<IUser>(
     tokenVersion: {
       type: Number,
       default: 0,
+      select: false,
     },
   },
   {

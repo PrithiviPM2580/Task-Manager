@@ -22,6 +22,8 @@ declare global {
     email: string;
     tokenVersion: number;
   }
+
+  type Status = "Pending" | "In Progress" | "Completed";
 }
 
 export {};
