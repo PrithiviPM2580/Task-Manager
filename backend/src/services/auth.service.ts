@@ -154,20 +154,11 @@ export const updateUserProfileService = async (
     user.email = email;
   }
 
-  const isPasswordValid = password
-    ? await user.comparePassword(password)
-    : true;
-
-  if (password && !isPasswordValid) {
-    logger.error("Update user profile failed: Invalid password", {
-      label: "Auth_Service",
-      userId,
-    });
-    throw new APIError(400, "Update user profile failed: Invalid password");
-  }
-
   if (name) user.name = name;
-  if (password) user.password = password;
+  if (password) {
+    user.password = password;
+    user.tokenVersion += 1;
+  }
 
   if (file) {
     const oldPublicId = user.profileImagePublicId;
