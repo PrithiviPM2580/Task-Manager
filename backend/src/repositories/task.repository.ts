@@ -29,3 +29,9 @@ export const statusTaskCountDocument = async (
     ...(role !== "admin" && { assignedTo: userId }),
   });
 };
+
+export const findTaskById = async (id: string) => {
+  return await Task.findById(id)
+    .populate("assignedTo", "name email profileImageUrl")
+    .lean();
+};

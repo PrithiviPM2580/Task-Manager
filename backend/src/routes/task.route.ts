@@ -8,6 +8,7 @@ import asyncHandler from "@/middlewares/async-handler.middleware.js";
 import { validateRequest } from "@/middlewares/validate-request.middleware.js";
 import {
   createTaskSchema,
+  getTaskByIdSchema,
   getTasksQuerySchema,
 } from "@/validation/task.validation.js";
 import {
@@ -42,7 +43,14 @@ taskRouter
 // @route   GET /api/tasks/:id
 // @desc    Get task by ID for the authenticated user
 // @access  Private (Requires authentication)
-taskRouter.route("/:id").get((_req, _res) => {});
+taskRouter
+  .route("/:id")
+  .get(
+    apiLimitter,
+    authenticateMiddleware,
+    validateRequest({ params: getTaskByIdSchema }),
+    asyncHandler(getTasksController),
+  );
 
 // @route   POST /api/tasks
 // @desc    Create a new task for the authenticated user

@@ -7,7 +7,10 @@ import {
   findTasks,
   allTaskCountDocument,
   statusTaskCountDocument,
+  findTaskById,
 } from "@/repositories/task.repository.js";
+import logger from "@/lib/logger.lib.js";
+import APIError from "@/lib/api-error.lib.js";
 
 export const createTaskService = async (
   taskData: CreateTaskInput,
@@ -73,4 +76,18 @@ export const getTasksService = async (
       completed: completedTasks,
     },
   };
+};
+
+export const getTaskByIdService = async (id: string) => {
+  const task = await findTaskById(id);
+
+  if (!task) {
+    logger.error("Task not found", {
+      label: "Task_Service",
+      taskId: id,
+    });
+    throw new APIError(404, "Task not found");
+  }
+
+  return { task };
 };

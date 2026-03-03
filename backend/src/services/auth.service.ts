@@ -48,6 +48,7 @@ export const registerUserService = async (userData: RegisterUserInput) => {
     userId: String(newUser._id),
     email: newUser.email,
     tokenVersion: newUser.tokenVersion,
+    role: newUser.role,
   });
 
   return {
@@ -83,6 +84,7 @@ export const loginUserService = async (userData: LoginUserInput) => {
     userId: String(user._id),
     email: user.email,
     tokenVersion: user.tokenVersion,
+    role: user.role,
   });
 
   return {
