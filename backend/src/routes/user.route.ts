@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getAllUsersController,
   getUserByIdController,
+  deleteUserByIdController,
 } from "@/controllers/user.controller.js";
 import asyncHandler from "@/middlewares/async-handler.middleware.js";
 import {
@@ -41,6 +42,14 @@ userRouter
 // @route   DELETE /api/users/:id
 // @desc    Delete user by ID
 // @access  Private (Requires authentication and admin role)
-userRouter.route("/:id").delete((_req, _res) => {});
+userRouter
+  .route("/:id")
+  .delete(
+    apiLimitter,
+    authenticateMiddleware,
+    authorizeMiddleware(["admin"]),
+    validateRequest({ params: getUserByIdSchema }),
+    asyncHandler(deleteUserByIdController),
+  );
 
 export default userRouter;
