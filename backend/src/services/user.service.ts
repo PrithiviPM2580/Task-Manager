@@ -3,8 +3,10 @@ import logger from "@/lib/logger.lib.js";
 import {
   findAllUsersByRole,
   findUserById,
+  findUserDocumentById,
   getDocumentTasksCount,
 } from "@/repositories/user.repository.js";
+import { deleteFromCloudinary } from "@/utils/helper.util.js";
 
 export const getAllUsersService = async () => {
   const users = await findAllUsersByRole();
@@ -46,4 +48,24 @@ export const getUserByIdService = async (id: string) => {
   }
 
   return { user };
+};
+
+export const deleteUserByIdService = async (id: string) => {
+  const user = await findUserDocumentById(id);
+
+  if (!user) {
+    logger.error("User not found for deletion with ID", {
+      label: "User_Service",
+      userId: id,
+    });
+    throw new APIError(404, "User not found for deletion");
+  }
+
+  if (user.profileImagePublicId) {
+    await deleteFromCloudinary(user.profileImagePublicId);
+  }
+
+  await user.deleteOne();
+
+  return;
 };
