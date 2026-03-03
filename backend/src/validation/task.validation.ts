@@ -57,7 +57,12 @@ export const getTaskByIdSchema = z.object({
   }),
 });
 
+export const updateTaskStatusSchema = z.object({
+  status: z.enum(["Pending", "In Progress", "Completed"]),
+});
+
 export type GetTaskByIdInput = z.infer<typeof getTaskByIdSchema>;
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type GetTasksQueryInput = z.infer<typeof getTasksQuerySchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
+export type UpdateTaskStatusInput = z.infer<typeof updateTaskStatusSchema>;

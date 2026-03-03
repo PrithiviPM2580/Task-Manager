@@ -11,11 +11,15 @@ import {
   getTaskByIdSchema,
   getTasksQuerySchema,
   updateTaskSchema,
+  updateTaskStatusSchema,
 } from "@/validation/task.validation.js";
 import {
   createTaskController,
   getTasksController,
   updateTaskController,
+  deleteTaskController,
+  updateTaskStatusController,
+  updateTaskCheckListController,
 } from "@/controllers/task.controller.js";
 
 const taskRouter: Router = Router();
@@ -82,16 +86,38 @@ taskRouter
 // @route   DELETE /api/tasks/:id
 // @desc    Delete task by ID for the authenticated user
 // @access  Private (Requires authentication and admin role)
-taskRouter.route("/:id").delete((_req, _res) => {});
+taskRouter
+  .route("/:id")
+  .delete(
+    apiLimitter,
+    authenticateMiddleware,
+    authorizeMiddleware(["admin"]),
+    validateRequest({ params: getTaskByIdSchema }),
+    asyncHandler(deleteTaskController),
+  );
 
 // @route   PUT /api/tasks/:id/status
 // @desc    Update task status by ID for the authenticated user
 // @access  Private (Requires authentication)
-taskRouter.route("/:id/status").put((_req, _res) => {});
+taskRouter
+  .route("/:id/status")
+  .put(
+    apiLimitter,
+    authenticateMiddleware,
+    validateRequest({ body: updateTaskStatusSchema }),
+    asyncHandler(updateTaskStatusController),
+  );
 
 // @route   PUT /api/tasks/:id/todo
 // @desc    Update task todo list by ID for the authenticated user
 // @access  Private (Requires authentication)
-taskRouter.route("/:id/todo").put((_req, _res) => {});
+taskRouter
+  .route("/:id/todo")
+  .put(
+    apiLimitter,
+    authenticateMiddleware,
+    validateRequest({ body: updateTaskStatusSchema }),
+    asyncHandler(updateTaskCheckListController),
+  );
 
 export default taskRouter;
