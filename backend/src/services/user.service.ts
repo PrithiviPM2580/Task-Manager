@@ -2,6 +2,7 @@ import APIError from "@/lib/api-error.lib.js";
 import logger from "@/lib/logger.lib.js";
 import {
   findAllUsersByRole,
+  findUserById,
   getDocumentTasksCount,
 } from "@/repositories/user.repository.js";
 
@@ -31,4 +32,18 @@ export const getAllUsersService = async () => {
 
     throw new APIError(500, "Failed to fetch users");
   }
+};
+
+export const getUserByIdService = async (id: string) => {
+  const user = await findUserById(id);
+
+  if (!user) {
+    logger.error("User not found with ID", {
+      label: "User_Service",
+      userId: id,
+    });
+    throw new APIError(404, "User not found");
+  }
+
+  return { user };
 };
