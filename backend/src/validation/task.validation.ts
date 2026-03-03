@@ -22,6 +22,31 @@ export const createTaskSchema = z.object({
   ),
 });
 
+export const updateTaskSchema = z.object({
+  title: z.string().min(1, "Title is required").optional(),
+  description: z.string("Description must be a string").optional(),
+  assignedTo: z
+    .array(
+      z.string().refine(Types.ObjectId.isValid, {
+        message: "Invalid assigned user ID",
+      }),
+    )
+    .min(1, "At least one user must be assigned to the task")
+    .optional(),
+  priority: z.enum(["Low", "Medium", "High"]).optional(),
+  status: z.enum(["Pending", "In Progress", "Completed"]).optional(),
+  dueDate: z.coerce.date().optional(),
+  attachments: z.array(z.string()).optional(),
+  todoCheckList: z
+    .array(
+      z.object({
+        text: z.string().min(1, "Todo item text is required"),
+        completed: z.boolean().default(false),
+      }),
+    )
+    .optional(),
+});
+
 export const getTasksQuerySchema = z.object({
   status: z.enum(["Pending", "In Progress", "Completed"]).optional(),
 });
@@ -32,5 +57,7 @@ export const getTaskByIdSchema = z.object({
   }),
 });
 
+export type GetTaskByIdInput = z.infer<typeof getTaskByIdSchema>;
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type GetTasksQueryInput = z.infer<typeof getTasksQuerySchema>;
+export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
