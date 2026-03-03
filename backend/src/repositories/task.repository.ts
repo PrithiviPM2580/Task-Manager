@@ -35,3 +35,7 @@ export const findTaskById = async (id: string) => {
     .populate("assignedTo", "name email profileImageUrl")
     .lean();
 };
+
+export const findTaskDocumentById = async (id: string) => {
+  return await Task.findById(id);
+};
