@@ -14,6 +14,8 @@ import {
 import logger from "@/lib/logger.lib.js";
 import APIError from "@/lib/api-error.lib.js";
 import { generateToken } from "@/lib/jwt.lib.js";
+import { uploadToCloudinary } from "@/lib/cloudnary.lib.js";
+import { deleteFromCloudinary } from "@/utils/helper.util.js";
 
 export const registerUserService = async (userData: RegisterUserInput) => {
   const { name, email, password, profileImageUrl, adminInviteToken } = userData;
@@ -123,11 +125,11 @@ export const getUserProfileService = async (userId: string) => {
 export const updateUserProfileService = async (
   userId: string,
   updateData: UpdateProfileInput,
+  file: Express.Multer.File | undefined,
 ) => {
-  const { name, profileImageUrl, password, email } = updateData;
+  const { name, password, email } = updateData;
 
   const user = await findUserByIdWithPassword(userId);
-
   if (!user) {
     logger.error("Update user profile failed: User not found", {
       label: "Auth_Service",
@@ -152,11 +154,35 @@ export const updateUserProfileService = async (
     user.email = email;
   }
 
+  const isPasswordValid = password
+    ? await user.comparePassword(password)
+    : true;
+
+  if (password && !isPasswordValid) {
+    logger.error("Update user profile failed: Invalid password", {
+      label: "Auth_Service",
+      userId,
+    });
+    throw new APIError(400, "Update user profile failed: Invalid password");
+  }
+
   if (name) user.name = name;
-  if (profileImageUrl) user.profileImageUrl = profileImageUrl;
   if (password) user.password = password;
+
+  if (file) {
+    const oldPublicId = user.profileImagePublicId;
+
+    const { url, public_id } = await uploadToCloudinary(file.buffer, "avatars");
+
+    user.profileImageUrl = url;
+    user.profileImagePublicId = public_id;
+
+    if (oldPublicId) {
+      await deleteFromCloudinary(oldPublicId);
+    }
+  }
 
   await user.save();
 
-  return;
+  return user;
 };
