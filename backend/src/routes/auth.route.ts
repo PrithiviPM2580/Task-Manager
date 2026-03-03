@@ -17,6 +17,7 @@ import {
   registerUserSchema,
   updateProfileSchema,
 } from "@/validation/auth.validation.js";
+import { uploadSingle } from "@/middlewares/multer.middleware.js";
 import { Router } from "express";
 
 const authRouter: Router = Router();
@@ -73,6 +74,7 @@ authRouter
   .put(
     apiLimitter,
     authenticateMiddleware,
+    uploadSingle("profileImage"),
     validateRequest({ body: updateProfileSchema }),
     asyncHandler(updateUserProfileController),
   );

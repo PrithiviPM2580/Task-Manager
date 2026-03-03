@@ -7,7 +7,7 @@ import {
   logoutUserService,
 } from "@/services/auth.service.js";
 import logger from "@/lib/logger.lib.js";
-import { successResponse } from "@/utils/success-response.js";
+import { successResponse } from "@/utils/success-response.util.js";
 import cookie from "@/lib/cookie.lib.js";
 
 export const registerUserController = async (req: Request, res: Response) => {
@@ -75,7 +75,7 @@ export const updateUserProfileController = async (
   req: Request,
   res: Response,
 ) => {
-  await updateUserProfileService(req.user!.userId, req.body);
+  await updateUserProfileService(req.user!.userId, req.body, req.file);
 
   logger.info("User profile updated successfully", {
     label: "Auth_Controller",

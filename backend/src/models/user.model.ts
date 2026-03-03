@@ -7,6 +7,7 @@ export interface IUser extends Document {
   password: string;
   role: "admin" | "member";
   profileImageUrl?: string;
+  profileImagePublicId?: string;
   tokenVersion: number;
   createdAt: Date;
   updatedAt: Date;
@@ -38,6 +39,10 @@ const userSchema = new Schema<IUser>(
       default: "member",
     },
     profileImageUrl: {
+      type: String,
+      default: "",
+    },
+    profileImagePublicId: {
       type: String,
       default: "",
     },

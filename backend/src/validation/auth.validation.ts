@@ -16,7 +16,6 @@ export const loginUserSchema = z.object({
 export const updateProfileSchema = z.object({
   name: z.string().min(6, "Name must be at least 6 characters long").optional(),
   email: z.email("Invalid email address").optional(),
-  profileImageUrl: z.string().optional(),
   password: z
     .string()
     .min(6, "Password must be at least 6 characters long")
