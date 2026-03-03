@@ -5,6 +5,9 @@ import {
   getTasksService,
   getTaskByIdService,
   updateTaskService,
+  deleteTaskService,
+  updateTaskStatusService,
+  updateTaskCheckListService
 } from "@/services/task.service.js";
 import type { GetTasksQueryInput } from "@/validation/task.validation.js";
 import { successResponse } from "@/utils/success-response.util.js";
@@ -66,3 +69,48 @@ export const updateTaskController = async (req: Request, res: Response) => {
 
   successResponse(res, 200, "Task updated successfully");
 };
+
+export const deleteTaskController = async (req: Request, res: Response) => {
+  const { id } = req.params as { id: string };
+
+  // Call the service to delete the task
+  await deleteTaskService(id);
+
+  logger.info("Task deleted successfully", {
+    label: "Task_Controller",
+    taskId: id,
+  });
+
+  successResponse(res, 200, "Task deleted successfully");
+};
+
+export const updateTaskStatusController = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params as { id: string };
+
+  await updateTaskStatusService(id, req.body, req.user!.role);
+
+  logger.info("Task status updated successfully", {
+    label: "Task_Controller",
+    taskId: id,
+  });
+
+  successResponse(res, 200, "Task status updated successfully");
+};
+
+
+export const updateTaskCheckListController = async (req: Request, res: Response) => {
+
+    const { id } = req.params as { id: string };
+
+  await updateTaskCheckListService(id, req.body, req.user!);
+
+    logger.info("Task checklist updated successfully", {
+        label: "Task_Controller",
+        taskId: id,
+    });
+
+    successResponse(res, 200, "Task checklist updated successfully");
+}
