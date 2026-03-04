@@ -7,7 +7,9 @@ import {
   updateTaskService,
   deleteTaskService,
   updateTaskStatusService,
-  updateTaskCheckListService
+  updateTaskCheckListService,
+  getDashboardDataService,
+  getUserDashboardDataService,
 } from "@/services/task.service.js";
 import type { GetTasksQueryInput } from "@/validation/task.validation.js";
 import { successResponse } from "@/utils/success-response.util.js";
@@ -100,17 +102,57 @@ export const updateTaskStatusController = async (
   successResponse(res, 200, "Task status updated successfully");
 };
 
+export const updateTaskCheckListController = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params as { id: string };
 
-export const updateTaskCheckListController = async (req: Request, res: Response) => {
+  const { task } = await updateTaskCheckListService(id, req.body, req.user!);
 
-    const { id } = req.params as { id: string };
+  logger.info("Task checklist updated successfully", {
+    label: "Task_Controller",
+    taskId: id,
+  });
 
-  await updateTaskCheckListService(id, req.body, req.user!);
+  successResponse(res, 200, "Task checklist updated successfully", {
+    task,
+  });
+};
 
-    logger.info("Task checklist updated successfully", {
-        label: "Task_Controller",
-        taskId: id,
-    });
+export const getDashboardDataController = async (
+  _req: Request,
+  res: Response,
+) => {
+  const { statistics, charts, recentTasks } = await getDashboardDataService();
 
-    successResponse(res, 200, "Task checklist updated successfully");
-}
+  logger.info("Dashboard data fetched successfully", {
+    label: "Task_Controller",
+  });
+
+  successResponse(res, 200, "Dashboard data fetched successfully", {
+    statistics,
+    charts,
+    recentTasks,
+  });
+};
+
+export const getUserDashboardDataController = async (
+  req: Request,
+  res: Response,
+) => {
+  const { statistics, charts, recentTasks } = await getUserDashboardDataService(
+    req.user!.userId,
+  );
+
+  logger.info("User Dashboard data fetched successfully", {
+    label: "Task_Controller",
+    userId: req.user!.userId,
+  });
+
+  successResponse(res, 200, "User Dashboard data fetched successfully", {
+    statistics,
+    charts,
+    recentTasks,
+  });
+};
