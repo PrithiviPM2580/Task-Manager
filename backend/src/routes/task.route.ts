@@ -20,6 +20,9 @@ import {
   deleteTaskController,
   updateTaskStatusController,
   updateTaskCheckListController,
+  getDashboardDataController,
+  getTaskByIdController,
+  getUserDashboardDataController,
 } from "@/controllers/task.controller.js";
 
 const taskRouter: Router = Router();
@@ -27,12 +30,24 @@ const taskRouter: Router = Router();
 // @route   GET /api/tasks/dashboard-data
 // @desc    Get dashboard data for the authenticated user, including task counts and recent activity
 // @access  Private (Requires authentication)
-taskRouter.route("/dashboard-data").get((_req, _res) => {});
+taskRouter
+  .route("/dashboard-data")
+  .get(
+    apiLimitter,
+    authenticateMiddleware,
+    asyncHandler(getDashboardDataController),
+  );
 
 // @route   GET /api/tasks/user-dashboard-data
 // @desc    Get dashboard data for a specific user, including task counts and recent activity (Admin only)
 // @access  Private (Requires authentication)
-taskRouter.route("/user-dashboard-data").get((_req, _res) => {});
+taskRouter
+  .route("/user-dashboard-data")
+  .get(
+    apiLimitter,
+    authenticateMiddleware,
+    asyncHandler(getUserDashboardDataController),
+  );
 
 // @route   GET /api/tasks
 // @desc    Get all tasks for the authenticated user with optional filtering and pagination
@@ -55,7 +70,7 @@ taskRouter
     apiLimitter,
     authenticateMiddleware,
     validateRequest({ params: getTaskByIdSchema }),
-    asyncHandler(getTasksController),
+    asyncHandler(getTaskByIdController),
   );
 
 // @route   POST /api/tasks

@@ -10,11 +10,20 @@ import {
   statusTaskCountDocument,
   findTaskById,
   findTaskDocumentById,
+  taskStatsDocument,
+  taskDistribution as taskDistributionDocument,
+  findRecentTasks,
+  userSpacificTaskStatsDocument,
+  taskStatusDistribution,
+  taskPriorityDistribution,
+  taskPriorityLevelsDistribution,
+  findRecentUserTasks,
 } from "@/repositories/task.repository.js";
 import logger from "@/lib/logger.lib.js";
 import APIError from "@/lib/api-error.lib.js";
 import { Types } from "mongoose";
 import type { ITodo } from "@/models/task.model.js";
+import Task from "@/models/task.model.js";
 
 export const createTaskService = async (
   taskData: CreateTaskInput,
@@ -235,9 +244,101 @@ export const updateTaskCheckListService = async (
     task.status = "Completed";
   } else if (task.status === "Completed") {
     task.status = "In Progress";
+  } else {
+    task.status = "Pending";
   }
 
   await task.save();
 
-  return;
+  const updatedTask = await findTaskById(id);
+
+  return { task: updatedTask };
+};
+
+export const getDashboardDataService = async () => {
+  const stats = await taskStatsDocument();
+
+  const taskStatus = ["Pending", "In Progress", "Completed"] as const;
+
+  const taskDistributionRaw = await taskDistributionDocument();
+  const taskDistribution = taskStatus.reduce<Record<string, number>>(
+    (acc, status) => {
+      const formattedKey = status.replace(/\s+/g, "");
+      acc[formattedKey] =
+        taskDistributionRaw.find((item) => item._id === status)?.count || 0;
+      return acc;
+    },
+    {},
+  );
+
+  taskDistribution["All"] = stats.total;
+
+  const taskProrities = ["Low", "Medium", "High"] as const;
+  const taskPriorityLevelsRaw = await taskPriorityDistribution();
+  const taskPriorityLevels = taskProrities.reduce<Record<string, number>>(
+    (acc, priority) => {
+      const formattedKey = priority.replace(/\s+/g, "");
+      acc[formattedKey] =
+        taskPriorityLevelsRaw.find((item) => item._id === priority)?.count || 0;
+      return acc;
+    },
+    {},
+  );
+
+  const recentTasks = await findRecentTasks();
+
+  return {
+    statistics: {
+      stats,
+    },
+    charts: {
+      taskDistribution,
+      taskPriorityLevels,
+    },
+    recentTasks,
+  };
+};
+
+export const getUserDashboardDataService = async (userId: string) => {
+  const stats = await userSpacificTaskStatsDocument(userId);
+
+  const taskStatus = ["Pending", "In Progress", "Completed"] as const;
+
+  const taskDistributionRaw = await taskStatusDistribution(userId);
+  const taskDistribution = taskStatus.reduce<Record<string, number>>(
+    (acc, status) => {
+      const formattedKey = status.replace(/\s+/g, "");
+      acc[formattedKey] =
+        taskDistributionRaw.find((item) => item._id === status)?.count || 0;
+      return acc;
+    },
+    {},
+  );
+
+  taskDistribution["All"] = stats.total;
+
+  const taskProrities = ["Low", "Medium", "High"] as const;
+  const taskPriorityLevelsRaw = await taskPriorityLevelsDistribution(userId);
+  const taskPriorityLevels = taskProrities.reduce<Record<string, number>>(
+    (acc, priority) => {
+      const formattedKey = priority.replace(/\s+/g, "");
+      acc[formattedKey] =
+        taskPriorityLevelsRaw.find((item) => item._id === priority)?.count || 0;
+      return acc;
+    },
+    {},
+  );
+
+  const recentTasks = await findRecentUserTasks(userId);
+
+  return {
+    statistics: {
+      stats,
+    },
+    charts: {
+      taskDistribution,
+      taskPriorityLevels,
+    },
+    recentTasks,
+  };
 };
