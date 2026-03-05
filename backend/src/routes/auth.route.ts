@@ -29,6 +29,7 @@ authRouter
   .route("/register")
   .post(
     authLimitter,
+    uploadSingle("profileImage"),
     validateRequest({ body: registerUserSchema }),
     asyncHandler(registerUserController),
   );
