@@ -2,6 +2,7 @@ import { Router } from "express";
 import authRouter from "./auth.route.js";
 import userRouter from "./user.route.js";
 import taskRouter from "./task.route.js";
+import reportRouter from "./report.route.js";
 
 const router: Router = Router();
 
@@ -16,6 +17,7 @@ router.route("/health").get((_req, res) => {
 router.use("/api/auth", authRouter);
 router.use("/api/users", userRouter);
 router.use("/api/tasks", taskRouter);
+router.use("/api/reports", reportRouter);
 
 router.use("/{*splat}", (_req, res) => {
   res.status(404).json({ error: "Route not found" });
