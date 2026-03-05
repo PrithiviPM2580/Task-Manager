@@ -1,7 +1,8 @@
 import AuthLayout from "@/components/layout/AuthLayout";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 import { Controller, useForm } from "react-hook-form";
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -23,9 +24,13 @@ import {
   loginFormSchema,
   type LoginFormData,
 } from "@/validation/auth.validation";
+import { login } from "@/services/auth.service";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
@@ -35,21 +40,33 @@ const Login = () => {
     },
   });
 
-  function onSubmit(data: LoginFormData) {
-    toast("You submitted the following values:", {
-      description: (
-        <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-      position: "bottom-right",
-      classNames: {
-        content: "flex flex-col gap-2",
-      },
-      style: {
-        "--border-radius": "calc(var(--radius)  + 4px)",
-      } as CSSProperties,
-    });
+  async function onSubmit(data: LoginFormData) {
+    setError(null);
+    setLoading(true);
+
+    try {
+      const { user, token } = await login(data);
+
+      if (token) {
+        localStorage.setItem("token", token);
+        toast.success("Login successful");
+
+        if (user.role === "admin") {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/user/dashboard");
+        }
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Login failed. Please check your credentials and try again.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -183,10 +200,15 @@ const Login = () => {
 
             <Button
               type="submit"
+              disabled={loading}
               className="w-full h-11 mt-1 text-base bg-[#3B83F7] hover:bg-[#256de0]"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </Button>
+
+            {error && (
+              <p className="text-center text-sm text-destructive">{error}</p>
+            )}
 
             <p className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{" "}
