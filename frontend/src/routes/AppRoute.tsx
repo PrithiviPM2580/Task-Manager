@@ -1,6 +1,6 @@
 import Login from "@/pages/auth/Login";
 import SignUp from "@/pages/auth/SignUp";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import CreateTask from "@/pages/admin/CreateTask";
@@ -9,6 +9,8 @@ import ManageUsers from "@/pages/admin/ManageUsers";
 import UserDashboard from "@/pages/user/UserDashboard";
 import MyTasks from "@/pages/user/MyTasks";
 import ViewTaskDetails from "@/pages/user/ViewTaskDetails";
+import { useUser } from "@/context/userContext";
+import { Spinner } from "@/components/ui/spinner";
 
 const AppRoute = () => {
   return (
@@ -31,9 +33,26 @@ const AppRoute = () => {
           <Route path="/user/tasks" element={<MyTasks />} />
           <Route path="/user/task-details/:id" element={<ViewTaskDetails />} />
         </Route>
+        <Route path="/" element={<Root />} />
       </Routes>
     </BrowserRouter>
   );
 };
 
 export default AppRoute;
+
+const Root = () => {
+  const { user, loading } = useUser();
+
+  if (loading) return <Spinner />;
+
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  return user.role === "admin" ? (
+    <Navigate to="/admin/dashboard" />
+  ) : (
+    <Navigate to="/user/dashboard" />
+  );
+};

@@ -2,11 +2,12 @@ import APIError from "@/lib/api-error.lib.js";
 import { verifyToken } from "@/lib/jwt.lib.js";
 import logger from "@/lib/logger.lib.js";
 import User from "@/models/user.model.js";
+import cookie from "@/lib/cookie.lib.js";
 import type { Request, Response, NextFunction } from "express";
 
 export const authenticateMiddleware = async (
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction,
 ) => {
   const token = req.cookies?.token;
@@ -18,11 +19,20 @@ export const authenticateMiddleware = async (
     return next(new APIError(401, "Authentication failed: No token provided"));
   }
 
-  const decode = verifyToken(token) as Payload;
+  let decode: Payload;
+
+  try {
+    decode = verifyToken(token) as Payload;
+  } catch (error) {
+    cookie.clear(res, "token");
+    return next(error);
+  }
+
   if (!decode.userId || !decode.email) {
     logger.error("Authentication failed: Invalid token payload", {
       label: "Authentication_Middleware",
     });
+    cookie.clear(res, "token");
     return next(
       new APIError(401, "Authentication failed: Invalid token payload"),
     );
@@ -34,6 +44,7 @@ export const authenticateMiddleware = async (
       label: "Authentication_Middleware",
       userId: decode.userId,
     });
+    cookie.clear(res, "token");
     return next(new APIError(401, "Authentication failed: User not found"));
   }
 
@@ -42,6 +53,7 @@ export const authenticateMiddleware = async (
       label: "Authentication_Middleware",
       userId: decode.userId,
     });
+    cookie.clear(res, "token");
     return next(
       new APIError(401, "Authentication failed: Token version mismatch"),
     );

@@ -18,8 +18,14 @@ export const signUpFormSchema = z.object({
     )
     .optional(),
   adminInviteToken: z
-    .string()
-    .regex(/^\d{6}$/, "Admin invite token must be exactly 6 digits"),
+    .union([
+      z.literal(""),
+      z
+        .string()
+        .regex(/^\d{6}$/, "Admin invite token must be exactly 6 digits"),
+    ])
+    .transform((value) => (value === "" ? undefined : value))
+    .optional(),
 });
 
 export type LoginFormData = z.infer<typeof loginFormSchema>;

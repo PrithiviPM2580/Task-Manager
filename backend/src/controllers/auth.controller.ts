@@ -9,8 +9,14 @@ import {
 import logger from "@/lib/logger.lib.js";
 import { successResponse } from "@/utils/success-response.util.js";
 import cookie from "@/lib/cookie.lib.js";
+import { uploadToCloudinary } from "@/lib/cloudnary.lib.js";
 
 export const registerUserController = async (req: Request, res: Response) => {
+  if (req.file) {
+    const { url } = await uploadToCloudinary(req.file.buffer, "avatars");
+    req.body.profileImageUrl = url;
+  }
+
   const { user, token } = await registerUserService(req.body);
 
   cookie.set(res, "token", token);

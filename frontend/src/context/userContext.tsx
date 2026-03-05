@@ -1,6 +1,5 @@
 import { getUserProfile } from "@/services/auth.service";
 import React, { createContext, useState, useEffect } from "react";
-import { toast } from "sonner";
 
 export const UserContext = createContext<
   | {
@@ -19,19 +18,12 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (user) return;
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
     const fetchUser = async () => {
       try {
         const response = await getUserProfile();
         setUser(response.user);
       } catch (error) {
-        toast.error("Failed to fetch user profile. Please login again.");
-        clearUser();
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -41,13 +33,11 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const updateUser = (userData: any) => {
     setUser(userData);
-    localStorage.setItem("token", userData.token);
     setLoading(false);
   };
 
   const clearUser = () => {
     setUser(null);
-    localStorage.removeItem("token");
   };
 
   return (
@@ -55,6 +45,14 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
     </UserContext.Provider>
   );
+};
+
+export const useUser = () => {
+  const context = React.useContext(UserContext);
+  if (context === undefined) {
+    throw new Error("useUser must be used within a UserProvider");
+  }
+  return context;
 };
 
 export default UserProvider;

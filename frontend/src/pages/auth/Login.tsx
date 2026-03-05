@@ -25,12 +25,14 @@ import {
   type LoginFormData,
 } from "@/validation/auth.validation";
 import { login } from "@/services/auth.service";
+import { useUser } from "@/context/userContext";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { updateUser } = useUser();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
@@ -45,17 +47,15 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { user, token } = await login(data);
+      const { user } = await login(data);
 
-      if (token) {
-        localStorage.setItem("token", token);
-        toast.success("Login successful");
+      updateUser(user);
+      toast.success("Login successful");
 
-        if (user.role === "admin") {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/user/dashboard");
-        }
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/user/dashboard");
       }
     } catch (error) {
       const message =
