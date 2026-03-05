@@ -1,8 +1,8 @@
 import AuthLayout from "@/components/layout/AuthLayout";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { useState, type CSSProperties } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,9 +23,15 @@ import {
   signUpFormSchema,
   type SignUpFormData,
 } from "@/validation/auth.validation";
+import { signUp } from "@/services/auth.service";
+import { useUser } from "@/context/userContext";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { updateUser } = useUser();
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpFormSchema),
@@ -38,21 +44,30 @@ const SignUp = () => {
     },
   });
 
-  function onSubmit(data: SignUpFormData) {
-    toast("You submitted the following values:", {
-      description: (
-        <pre className="mt-2 w-[320px] overflow-x-auto rounded-md bg-code p-4 text-code-foreground">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-      position: "bottom-right",
-      classNames: {
-        content: "flex flex-col gap-2",
-      },
-      style: {
-        "--border-radius": "calc(var(--radius)  + 4px)",
-      } as CSSProperties,
-    });
+  async function onSubmit(data: SignUpFormData) {
+    setError(null);
+    setLoading(true);
+    try {
+      const { user } = await signUp(data);
+
+      updateUser(user);
+      toast.success("Sign up successful");
+
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/user/dashboard");
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Sign up failed. Please check your details and try again.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -302,10 +317,15 @@ const SignUp = () => {
 
             <Button
               type="submit"
+              disabled={loading}
               className="w-full h-11 mt-1 text-base bg-[#3B83F7] hover:bg-[#256de0]"
             >
-              Sign Up
+              {loading ? "Signing up..." : "Sign Up"}
             </Button>
+
+            {error && (
+              <p className="text-center text-sm text-destructive">{error}</p>
+            )}
 
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
