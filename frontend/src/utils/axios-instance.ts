@@ -1,5 +1,6 @@
 import axios from "axios";
 import { BASE_URL } from "./api-paths";
+import { getErrorMessage } from "./helper";
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -13,10 +14,6 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
     return config;
   },
   (error) => {
@@ -31,9 +28,15 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response) {
       if (error.response.status === 401) {
-        window.location.href = "/login";
+        const isAuthPage =
+          window.location.pathname === "/login" ||
+          window.location.pathname === "/sign-up";
+
+        if (!isAuthPage) {
+          window.location.href = "/login";
+        }
       } else if (error.response.status === 500) {
-        console.error("Server error. Please try again later.");
+        console.error(getErrorMessage(error));
       }
     } else if (error.code === "ECONNABORTED") {
       console.error("Request timed out. Please try again.");
