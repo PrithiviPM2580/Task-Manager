@@ -23,7 +23,7 @@ import {
   signUpFormSchema,
   type SignUpFormData,
 } from "@/validation/auth.validation";
-import { signUp } from "@/services/auth.service";
+import { signUp, getUserProfile } from "@/services/auth.service";
 import { useUser } from "@/context/userContext";
 
 const SignUp = () => {
@@ -48,7 +48,10 @@ const SignUp = () => {
     setError(null);
     setLoading(true);
     try {
-      const { user } = await signUp(data);
+      await signUp(data);
+      // fetch full profile (includes role and profileImageUrl)
+      const profile = await getUserProfile();
+      const user = profile.user;
 
       updateUser(user);
       toast.success("Sign up successful");

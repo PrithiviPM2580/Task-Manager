@@ -1,5 +1,9 @@
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import { useUserAuth } from "@/hooks/useUserAuth";
+
 const UserDashboard = () => {
-  return <div>UserDashboard</div>;
+  useUserAuth();
+  return <DashboardLayout />;
 };
 
 export default UserDashboard;

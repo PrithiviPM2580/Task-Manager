@@ -18,10 +18,27 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (user) return;
 
+    // try to read cached user from localStorage first
+    try {
+      const cached = localStorage.getItem("user");
+      if (cached) {
+        setUser(JSON.parse(cached));
+        setLoading(false);
+        return;
+      }
+    } catch (err) {
+      // ignore localStorage errors
+    }
+
     const fetchUser = async () => {
       try {
         const response = await getUserProfile();
         setUser(response.user);
+        try {
+          localStorage.setItem("user", JSON.stringify(response.user));
+        } catch (err) {
+          // ignore storage errors
+        }
       } catch (error) {
         setUser(null);
       } finally {
@@ -34,6 +51,11 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const updateUser = (userData: any) => {
     setUser(userData);
     setLoading(false);
+    try {
+      localStorage.setItem("user", JSON.stringify(userData));
+    } catch (err) {
+      // ignore storage errors
+    }
   };
 
   const clearUser = () => {

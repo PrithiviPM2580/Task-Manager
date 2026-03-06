@@ -1,5 +1,10 @@
+import { useUserAuth } from "@/hooks/useUserAuth";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+
 const AdminDashboard = () => {
-  return <div>AdminDashboard</div>;
+  useUserAuth();
+
+  return <DashboardLayout />;
 };
 
 export default AdminDashboard;

@@ -24,7 +24,7 @@ import {
   loginFormSchema,
   type LoginFormData,
 } from "@/validation/auth.validation";
-import { login } from "@/services/auth.service";
+import { login, getUserProfile } from "@/services/auth.service";
 import { useUser } from "@/context/userContext";
 
 const Login = () => {
@@ -47,7 +47,10 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { user } = await login(data);
+      await login(data);
+      // fetch full profile (includes role and profileImageUrl)
+      const profile = await getUserProfile();
+      const user = profile.user;
 
       updateUser(user);
       toast.success("Login successful");
